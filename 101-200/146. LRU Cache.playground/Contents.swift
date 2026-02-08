@@ -1,35 +1,37 @@
-
 class LRUCache {
-
-    var dict: [Int: Int] = [:]
-    var stack: [Int]
-    let capacity: Int
+    var data: [Int: Int] = [:]
+    var lru: [Int] = []
+    let cap: Int
     
     init(_ capacity: Int) {
-        stack = []
-        self.capacity = capacity
+        self.cap = capacity
     }
     
     func get(_ key: Int) -> Int {
-        if let val = dict[key] {
-            put(key, val)
-            return val
+        if let data = data[key] {
+            put(key, data)
+            return data
         }
         return -1
     }
     
     func put(_ key: Int, _ value: Int) {
-        if stack.endIndex + 1 > capacity {
-            if let val = dict[key] {
-                stack.removeFirst()
-            } else {
-                let key = stack.removeFirst()
-                dict.removeValue(forKey: key)
-            }
-        }
+        let currentSize = lru.endIndex
         
-        stack.append(key)
-        dict[key] = value
+        if data[key] != nil {
+            lru.removeAll(where: { $0 == key })
+            lru.append(key)
+            
+            data[key] = value
+        } else {
+            if currentSize + 1 > cap {
+                let first = lru.removeFirst()
+                data.removeValue(forKey: first)
+            }
+            
+            lru.append(key)
+            data[key] = value
+        }
     }
 }
 
